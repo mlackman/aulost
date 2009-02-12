@@ -1,14 +1,16 @@
 from math import pi, sin, log
 import google
 
+def provider():
+    return Google()
+
 class MapPiece(object):
     
     def __init__(self, col, row, zoom):
         self.url = 'http://mt.google.com/mt?x=%d&y=%d&zoom=%d' % (col, row, 17-zoom)
         self.image = None
         self.size = (256,256)
-        self.x = (col - long(col)) * google.TILE_SIZE
-        self.y = (row - long(row)) * google.TILE_SIZE
+
 
 class Map(object):
 
@@ -33,7 +35,7 @@ class Map(object):
                 mp = MapPiece(column, row, zoom)
                 mp.x = -currentX
                 mp.y = -currentY
-                currentX += google.TILE_SIZE
+                currentX += google.TILE_SIZE    
                 self.mapPieces.append(mp)
             currentY += google.TILE_SIZE
 
@@ -42,6 +44,7 @@ class Google(object):
         
     def __init__(self):
         self.zoomLevel = 14
+        self.name = 'Google maps'
 
     def getMap(self, centerLocation, size):
         return Map(centerLocation, size, self.zoomLevel)
