@@ -1,0 +1,13 @@
+#summary One-sentence summary of this page.
+#labels todo
+
+= Things to do =
+
+  * Zooming
+  * Browsing map
+  * Cursor to show the heading
+  * Showing track on map
+  * Storing tracks
+  * Storing locations
+  * Navigating to stored locations
+  * Google satellite maps
