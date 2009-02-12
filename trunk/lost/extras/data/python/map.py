@@ -6,6 +6,7 @@ import appuifw
 import urllib
 import graphics
 import socket
+import os
 
 apo = 0 # access point
 
@@ -135,12 +136,25 @@ class MapEngine(object):
         
     def __init__(self, mapInformationChagedCallback):
         self.currentPosition = (65.681264, 24.755917)
-        self._provider = google_provider.Google()
+        self._provider = None
+        self._providers = {}
+        for root,dir,files in os.walk('c:\\data\\python'):
+            for file in files:
+                if file.endswith('_provider.py'):
+                    providerModule = __import__(file[:-3])
+                    provider = providerModule.provider()
+                    self._providers[provider.name] = provider
         self.map = None
         self._mapCache = Images()
         self._mapInformationChagedCallback = mapInformationChagedCallback
         self._loader = MapDownloader(self._mapCache, e32.ao_callgate(self._imageLoaded))
         self.gps = GPS(self._positionChanged)
+
+    def providers(self):
+        return self._providers.keys()
+
+    def setProvider(self, providerName):
+        self._provider = self._providers[providerName]
 
     def update(self):
         self._updateMap()
@@ -175,6 +189,8 @@ class MapEngine(object):
         self._updateMap()
 
     def _updateMap(self):
+        if not self._provider or not hasattr(appuifw.app.body,'size'):
+            return
         newMap = self._provider.getMap(self.currentPosition, appuifw.app.body.size)
         if self.map:
             for oldMapPiece in self.map.mapPieces:
