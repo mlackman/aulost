@@ -20,9 +20,11 @@ class MainLoop(object):
 class LostApp:
     def __init__(self):
         apid = socket.select_access_point()  #Prompts you to select the access point
-        apo = socket.access_point(apid)      #apo is the access point you selected
-        
-        maps.apo = apo
+        if apid:
+            apo = socket.access_point(apid)      #apo is the access point you selected     
+            maps.apo = apo
+        else:
+            maps.apo = None
         self.engine = maps.MapEngine(self.__update)
         providers = map(lambda name: unicode(name), self.engine.providers())
         selection = appuifw.selection_list(providers)

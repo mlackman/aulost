@@ -56,7 +56,8 @@ class Worker(object):
         self.thread.join()
 
     def run(self):
-        socket.set_default_access_point(apo)
+        if apo:
+            socket.set_default_access_point(apo)
         while self.running:
             if self.job:
                 self.job()
@@ -91,14 +92,16 @@ class MapDownloader(object):
         try:    
             image = graphics.Image.open(filename)
         except:
-            f = urllib.urlopen(url)
-            data = f.read()
-            f.close()
-            f = open(filename, 'wb')
-            f.write(data)
-            f.close()
-            image = graphics.Image.open(filename)
-        self.images.add(url, image)
+            if apo:
+                f = urllib.urlopen(url)
+                data = f.read()
+                f.close()
+                f = open(filename, 'wb')
+                f.write(data)
+                f.close()
+                image = graphics.Image.open(filename)
+        if image:
+            self.images.add(url, image)
         self.urls.pop(0)
         
             
