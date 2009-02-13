@@ -1,5 +1,34 @@
-from math import pi, sin, log
+from math import pi, sin, log, atan, exp
 import google
+
+#Code has been converted from http://svn.appelsiini.net/svn/javascript/trunk/google_maps_nojs/Google/Maps.php
+offset = 268435456
+r = offset / pi
+
+#Code has been converted from http://svn.appelsiini.net/svn/javascript/trunk/google_maps_nojs/Google/Maps.php
+def lonToX(lon):
+    return offset + r * lon * pi / 180
+
+#Code has been converted from http://svn.appelsiini.net/svn/javascript/trunk/google_maps_nojs/Google/Maps.php
+def latToY(lat):
+    return offset - r * log((1 + sin(lat * pi / 180)) / (1 - sin(lat * pi / 180))) / 2
+
+#Code has been converted from http://svn.appelsiini.net/svn/javascript/trunk/google_maps_nojs/Google/Maps.php
+def xToLon(x): 
+    return ((x - offset) / r) * 180/ pi
+
+#Code has been converted from http://svn.appelsiini.net/svn/javascript/trunk/google_maps_nojs/Google/Maps.php    
+def yToLat(y):
+    return (pi / 2 - 2 * atan(exp((y - offset) / r))) * 180 / pi
+
+#Code has been converted from http://svn.appelsiini.net/svn/javascript/trunk/google_maps_nojs/Google/Maps.php    
+def adjustLonByPixels(lon, delta, zoom):
+    return xToLon(lonToX(lon) + (delta << (21 - zoom)))
+
+#Code has been converted from http://svn.appelsiini.net/svn/javascript/trunk/google_maps_nojs/Google/Maps.php
+def adjustLatByPixels(lat, delta, zoom):
+    return yToLat(latToY(lat) + (delta << (21 - zoom)))
+
 
 def provider():
     return Google()
@@ -16,6 +45,8 @@ class Map(object):
 
     def __init__(self, centerLocation, size, zoomLevel):
         self.mapPieces = []
+        self.center = centerLocation
+        self.zoom = zoomLevel
         latitude,longitude = centerLocation
         col,row,zoom,tiles = google.locationCoord(latitude,longitude, zoomLevel)
         width, height = size
@@ -39,6 +70,14 @@ class Map(object):
                 self.mapPieces.append(mp)
             currentY += google.TILE_SIZE
 
+    def move(self, dx, dy):
+        for map in self.mapPieces:
+            map.x += dx
+            map.y += dy
+        lat, lon = self.center
+        newLat = adjustLatByPixels(lat, dy, self.zoom)
+        newLon = adjustLonByPixels(lon, dx, self.zoom)
+        self.center = (newLat,newLon)
 
 class Google(object):
         

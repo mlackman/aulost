@@ -169,6 +169,15 @@ class MapEngine(object):
         self.gps.stop()
         self._loader.cancelLoading()
 
+    def moveMap(self, dx, dy):
+        self.gps.stop()
+        if self.map:
+            # TODO: This move should be getPosition...
+            self.map.move(dx,dy) 
+            self.currentPosition = self.map.center
+            self._updateMap()
+        self._mapInformationChagedCallback()
+
     def gotoLocation(self, position):
         self.gps.stop()
         self.currentPosition = position
