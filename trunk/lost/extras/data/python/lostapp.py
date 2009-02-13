@@ -3,6 +3,7 @@ import map as maps
 import e32
 import appuifw
 import graphics
+import key_codes
 
 class MainLoop(object):
     
@@ -33,7 +34,7 @@ class LostApp:
         
         
         appuifw.app.title = u'Lost'
-        appuifw.app.body = appuifw.Canvas(self.__redraw,self.__keypressed, self.resize)
+        appuifw.app.body = appuifw.Canvas(self.__redraw,self._keypressed, self.resize)
         appuifw.app.menu = [(u'Size',\
                             ((u'Normal', self._normalSize),
                              (u'Large',  self._largeSize),
@@ -61,8 +62,16 @@ class LostApp:
         self.engine.close()
         self.__mainloop.stop()
 
-    def __keypressed(self, key):
-        print 'key pressed', key
+    def _keypressed(self, keyEvent):
+        keycode = keyEvent['keycode']
+        if keycode == key_codes.EKeyUpArrow:
+            self.engine.moveMap(0, -10)
+        elif keycode == key_codes.EKeyDownArrow:
+            self.engine.moveMap(0, 10)
+        elif keycode == key_codes.EKeyLeftArrow:
+            self.engine.moveMap(-10, 0)
+        elif keycode == key_codes.EKeyRightArrow:
+            self.engine.moveMap(10, 0)
 
     def resize(self, event):
         self.engine.update()
