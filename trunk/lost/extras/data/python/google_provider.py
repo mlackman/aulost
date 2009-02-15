@@ -52,8 +52,12 @@ class Map(object):
         width, height = size
         x = width/2 - ((col - long(col)) * google.TILE_SIZE)
         y = height/2 - ((row - long(row)) * google.TILE_SIZE)
-        nmbrOfColumns = width / google.TILE_SIZE + 1
-        nmbrOfRows = height / google.TILE_SIZE + 1
+        
+        # This is a hack to fill the hole screen. The formula should be something
+        # which checks if the map tile which contains the centerLocation is not 
+        # filling the whole screen ie its drawn to side of the screen.
+        nmbrOfColumns = width / google.TILE_SIZE + 2
+        nmbrOfRows = height / google.TILE_SIZE + 2
 
         startCol = col - nmbrOfColumns/2
         startRow = row - nmbrOfRows/2
