@@ -73,8 +73,8 @@ class LostApp:
                             ((u'Normal', self._normalSize),
                              (u'Large',  self._largeSize),
                              (u'Full',   self._fullSize))),
-                        (u'Zoom in', self.__zoomIn),
-                        (u'Zoom out', self.__zoomOut),
+                        (u'Zoom in', self.engine.zoomIn),
+                        (u'Zoom out', self.engine.zoomOut),
                         (u'Locate', self.engine.gps.start),
                         (u'Goto', self._goto),
                         (u'Exit', self.exitApp)]
@@ -131,19 +131,12 @@ class LostApp:
         appuifw.app.body.rectangle((centerX-15,centerY-15,centerX+15,centerY+15),(0,0,0), width=lineWidth)
         appuifw.app.body.line((centerX - 50, centerY, centerX + 50, centerY),(0,0,0),width=lineWidth)
         appuifw.app.body.line((centerX, centerY-50, centerX, centerY+50),(0,0,0),width=lineWidth)"""
-
-    def __zoomIn(self):
-        pass
-
-    def __zoomOut(self):
-        pass
         
     def __update(self):
         self.__redraw((0,0,0,0))
         
     def _normalSize(self):
         appuifw.app.screen='normal'
-
         
     def _largeSize(self):
         appuifw.app.screen='large'

@@ -60,13 +60,24 @@ class Map(object):
         nmbrOfRows = height / google.TILE_SIZE + 2
 
         startCol = col - nmbrOfColumns/2
+        lastCol = col+nmbrOfColumns
+        if lastCol > tiles:
+            lastCol = tiles
+        
         startRow = row - nmbrOfRows/2
+        lastRow = row + nmbrOfRows
+        if lastRow > tiles:
+            lastRow = tiles 
+        if tiles == 2: 
+            lastRow = 1       
+
         startY = y - (col-startCol)*google.TILE_SIZE
         startX = x - (row-startRow)*google.TILE_SIZE
         currentY = startY
-        for row in range(int(startRow), int(row+nmbrOfRows)):
+        for row in range(int(startRow), int(lastRow)):
             currentX = startX
-            for column in range(int(startCol), int(col+nmbrOfColumns)):
+            for column in range(int(startCol), int(lastCol)):
+                print column
                 mp = MapPiece(column, row, zoom)
                 mp.x = currentX
                 mp.y = currentY
@@ -89,5 +100,14 @@ class Google(object):
         self.zoomLevel = 14
         self.name = 'Google maps'
 
+    def zoomIn(self):
+        if self.zoomLevel != 17:
+            self.zoomLevel += 1
+
+    def zoomOut(self):
+        if self.zoomLevel != 1:
+            self.zoomLevel -= 1
+
     def getMap(self, centerLocation, size):
         return Map(centerLocation, size, self.zoomLevel)
+
