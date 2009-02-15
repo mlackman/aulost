@@ -16,7 +16,40 @@ class MainLoop(object):
     def stop(self):
         self._lock.signal()
 
+class MapLayer(object):
+        
+    def __init__(self, engine):
+        self._engine = engine
 
+    def update(self):
+        if self._engine.map:
+            map(self._drawMapPiece, self._engine.map.mapPieces)
+
+    def _drawMapPiece(self, mapPiece):
+        image = mapPiece.image
+        if image:        
+            appuifw.app.body.blit(image, (-mapPiece.x,-mapPiece.y))
+        else:
+            width,height = mapPiece.size
+            area = (mapPiece.x, mapPiece.y, mapPiece.x+width, mapPiece.y+height)
+            white = (255,255,255)
+            appuifw.app.body.rectangle(area, white,fill=white)
+
+class CursorLayer(object):
+    
+    def __init__(self, gps):
+        self._gps = gps
+
+    def update(self):
+        width,height = appuifw.app.body.size
+        centerX = width / 2
+        centerY = height / 2
+        lineWidth = 1
+        if self._gps.active:
+            lineWidth = 2
+        appuifw.app.body.rectangle((centerX-15,centerY-15,centerX+15,centerY+15),(0,0,0), width=lineWidth)
+        appuifw.app.body.line((centerX - 50, centerY, centerX + 50, centerY),(0,0,0),width=lineWidth)
+        appuifw.app.body.line((centerX, centerY-50, centerX, centerY+50),(0,0,0),width=lineWidth)
 
 class LostApp:
     def __init__(self):
@@ -32,6 +65,7 @@ class LostApp:
         if selection is not None:
             self.engine.setProvider(providers[selection])
         
+        self._layers = [MapLayer(self.engine), CursorLayer(self.engine.gps)]
         
         appuifw.app.title = u'Lost'
         appuifw.app.body = appuifw.Canvas(self.__redraw,self._keypressed, self.resize)
@@ -79,11 +113,16 @@ class LostApp:
     def __redraw(self, area):
         if not hasattr(appuifw.app.body,'size'):
             return
-        if self.engine.map:
+        map(lambda layer: layer.update(), self._layers)
+        """if self.engine.map:
             for m in self.engine.map.mapPieces:
                 if m.image:        
-                    appuifw.app.body.blit(m.image, (m.x,m.y))
-        width,height = appuifw.app.body.size
+                    appuifw.app.body.blit(m.image, (-m.x,-m.y))
+                else:
+                    width,height = m.size
+                    appuifw.app.body.rectangle((m.x, m.y, m.x+width, m.y+height), (255,255,255),fill=(255,255,255))"""
+
+        """width,height = appuifw.app.body.size
         centerX = width / 2
         centerY = height / 2
         lineWidth = 1
@@ -91,7 +130,7 @@ class LostApp:
             lineWidth = 2
         appuifw.app.body.rectangle((centerX-15,centerY-15,centerX+15,centerY+15),(0,0,0), width=lineWidth)
         appuifw.app.body.line((centerX - 50, centerY, centerX + 50, centerY),(0,0,0),width=lineWidth)
-        appuifw.app.body.line((centerX, centerY-50, centerX, centerY+50),(0,0,0),width=lineWidth)
+        appuifw.app.body.line((centerX, centerY-50, centerX, centerY+50),(0,0,0),width=lineWidth)"""
 
     def __zoomIn(self):
         pass

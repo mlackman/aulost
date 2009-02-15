@@ -64,8 +64,8 @@ class Map(object):
             currentX = startX
             for column in range(int(startCol), int(col+nmbrOfColumns)):
                 mp = MapPiece(column, row, zoom)
-                mp.x = -currentX
-                mp.y = -currentY
+                mp.x = currentX
+                mp.y = currentY
                 currentX += google.TILE_SIZE    
                 self.mapPieces.append(mp)
             currentY += google.TILE_SIZE
