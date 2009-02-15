@@ -93,12 +93,7 @@ class MapDownloader(object):
             image = graphics.Image.open(filename)
         except:
             if apo:
-                f = urllib.urlopen(url)
-                data = f.read()
-                f.close()
-                f = open(filename, 'wb')
-                f.write(data)
-                f.close()
+                f = urllib.urlretrieve(url,filename)
                 image = graphics.Image.open(filename)
         if image:
             self.images.add(url, image)
@@ -197,8 +192,10 @@ class MapEngine(object):
         pos = event['position']
         lat = pos['latitude']
         lon = pos['longitude']
-        self.currentPosition = (lat,lon)
-        self._updateMap()
+        if str(lat) != 'nan' and str(lon) != 'nan':
+            self.currentPosition = (lat,lon)
+            self._updateMap()
+
 
     def _updateMap(self):
         if not self._provider or not hasattr(appuifw.app.body,'size'):
