@@ -173,6 +173,17 @@ class MapEngine(object):
             self._updateMap()
         self._mapInformationChagedCallback()
 
+    def zoomIn(self):
+        if self._provider:
+            self._provider.zoomIn()
+            self._updateMap()
+
+    def zoomOut(self):
+        if self._provider:
+            self._provider.zoomOut()
+            self._updateMap()
+
+
     def gotoLocation(self, position):
         self.gps.stop()
         self.currentPosition = position
