@@ -29,7 +29,8 @@ class MapLayer(object):
         image = mapPiece.image
         if image:        
             appuifw.app.body.blit(image, (-mapPiece.x,-mapPiece.y))
-        else:
+        else:   
+            # Clear the area of map piece, which does not have image
             width,height = mapPiece.size
             area = (mapPiece.x, mapPiece.y, mapPiece.x+width, mapPiece.y+height)
             white = (255,255,255)
@@ -114,23 +115,6 @@ class LostApp:
         if not hasattr(appuifw.app.body,'size'):
             return
         map(lambda layer: layer.update(), self._layers)
-        """if self.engine.map:
-            for m in self.engine.map.mapPieces:
-                if m.image:        
-                    appuifw.app.body.blit(m.image, (-m.x,-m.y))
-                else:
-                    width,height = m.size
-                    appuifw.app.body.rectangle((m.x, m.y, m.x+width, m.y+height), (255,255,255),fill=(255,255,255))"""
-
-        """width,height = appuifw.app.body.size
-        centerX = width / 2
-        centerY = height / 2
-        lineWidth = 1
-        if self.engine.gps.active:
-            lineWidth = 2
-        appuifw.app.body.rectangle((centerX-15,centerY-15,centerX+15,centerY+15),(0,0,0), width=lineWidth)
-        appuifw.app.body.line((centerX - 50, centerY, centerX + 50, centerY),(0,0,0),width=lineWidth)
-        appuifw.app.body.line((centerX, centerY-50, centerX, centerY+50),(0,0,0),width=lineWidth)"""
         
     def __update(self):
         self.__redraw((0,0,0,0))
