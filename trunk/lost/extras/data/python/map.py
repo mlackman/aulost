@@ -1,6 +1,5 @@
 import positioning 
 import threading
-import google_provider
 import e32
 import appuifw
 import urllib
@@ -132,7 +131,7 @@ class GPS(object):
 
 class MapEngine(object):
         
-    def __init__(self, mapInformationChagedCallback):
+    def __init__(self):
         self.currentPosition = (65.681264, 24.755917)
         self._provider = None
         self._providers = {}
@@ -144,9 +143,11 @@ class MapEngine(object):
                     self._providers[provider.name] = provider
         self.map = None
         self._mapCache = Images()
-        self._mapInformationChagedCallback = mapInformationChagedCallback
         self._loader = MapDownloader(self._mapCache, e32.ao_callgate(self._imageLoaded))
         self.gps = GPS(self._positionChanged)
+
+    def setCallback(self, callback):
+        self._mapInformationChagedCallback = callback
 
     def providers(self):
         return self._providers.keys()
