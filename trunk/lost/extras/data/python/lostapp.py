@@ -25,8 +25,9 @@ class LostApp:
         else:
             maps.apo = None
         self.engine = maps.MapEngine()
-        mapView = mapview.MapView(self.engine, self, self._exitApp)
-        self.engine.setCallback(mapView.update)
+        self._views = {'MapView':mapview.MapView(self.engine, self, self._exitApp), 'LocationsView':locations.LocationsView(locations.LocationStore(), self)}
+        self.engine.setCallback(self._views['MapView'].update)
+        self.changeView('MapView')
         providers = map(lambda name: unicode(name), self.engine.providers())
         selection = appuifw.selection_list(providers)
         if selection is not None:
@@ -42,7 +43,7 @@ class LostApp:
         self.__mainloop.start()
 
     def changeView(self, viewName):
-        view = locations.LocationsView(locations.LocationStore())
+        self._views[viewName].activate()
 
     def _exitApp(self):
         self.engine.close()
