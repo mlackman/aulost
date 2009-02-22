@@ -15,7 +15,7 @@ class TestLocationView(unittest.TestCase):
         self.locationStoreStub = yamf.Mock()
         self.locationStoreStub.read.returns(
             [LocationInfo('name','15.4.2009',(65.0,25.0)),LocationInfo('name2','16.5.2010',(66.0,26.0))])
-        self.v = LocationsView(self.locationStoreStub,None)
+        self.v = LocationsView(self.locationStoreStub,yamf.Mock())
         self.v.activate()
     
     def testViewComponentIsListBox(self):
@@ -24,6 +24,20 @@ class TestLocationView(unittest.TestCase):
     def testViewShowsLocationInfos(self):
         self.assertEquals(appuifw.app.body.list, 
             [(u'name',u'15.4.2009'),(u'name2',u'16.5.2010')])
+
+class TestLocationViewSpecialCases(unittest.TestCase):
+
+    def testViewIsChangedBackIfNotLocationsInStore(self):
+        viewManagerMock = yamf.Mock()
+        viewManagerMock.changeView.mustBeCalled.withArgs('MapView')
+        locationStoreStub = yamf.Mock()
+        locationStoreStub.read.returns([])
+
+        v = LocationsView(locationStoreStub,viewManagerMock)
+        v.activate()
+        viewManagerMock.verify() 
+
+        
 
 class TestLocationDlg(unittest.TestCase):
 

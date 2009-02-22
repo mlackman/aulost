@@ -31,9 +31,13 @@ class LocationsView(object):
 
     def activate(self):
         locations = self._store.read()
-        nameAndDates = [(unicode(info.name),unicode(info.date)) for info in locations]
-        appuifw.app.body = appuifw.Listbox(nameAndDates,self._selectionCallback)
-        appuifw.app.menu = [(u'Back to map', self._toMapView)]
+        if locations:
+            nameAndDates = [(unicode(info.name),unicode(info.date)) for info in locations]
+            appuifw.app.body = appuifw.Listbox(nameAndDates,self._selectionCallback)
+            appuifw.app.menu = [(u'Back to map', self._toMapView)]
+        else:
+            appuifw.note(u'No saved locations', 'info')
+            self._toMapView()
 
     def _selectionCallback(self):
         pass
