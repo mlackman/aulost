@@ -46,6 +46,10 @@ class MapView(object):
         self._viewManager = viewManager
         self._engine = mapEngine
         self._layers = [MapLayer(self._engine), CursorLayer(self._engine.gps)]
+        self._exitCallback = exitCallback
+        
+
+    def activate(self):
         appuifw.app.body = appuifw.Canvas(self._redraw,self._keypressed, self._resize)
         appuifw.app.menu = [(u'Size',\
                             ((u'Normal', self._normalSize),
@@ -57,9 +61,10 @@ class MapView(object):
                         (u'Goto', self._goto),
                         (u'Store location', self._storeLocation),
                         (u'View locations', self._viewLocations),
-                        (u'Exit', exitCallback)]
+                        (u'Exit', self._exitCallback)]
         appuifw.app.screen = 'normal'
         appuifw.app.body.clear()
+        self.update()
 
     def update(self):
         self._redraw((0,0,0,0))
@@ -79,7 +84,7 @@ class MapView(object):
         self._engine.update()
 
     def _redraw(self, area):
-        if not hasattr(appuifw.app.body,'size'):
+        if not hasattr(appuifw.app.body,'blit'):
             return
         map(lambda layer: layer.update(), self._layers)
 
