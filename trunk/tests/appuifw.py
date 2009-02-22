@@ -6,6 +6,9 @@ class Application(object):
 
 app = Application()
 
+def note(*args,**kwargs):
+    pass
+
 class Listbox(object):
 
     def __init__(self, list, callback):
