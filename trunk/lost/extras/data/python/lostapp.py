@@ -3,7 +3,7 @@ import map as maps
 import e32
 import appuifw
 import mapview
-
+import locations
 
 class MainLoop(object):
     
@@ -25,7 +25,7 @@ class LostApp:
         else:
             maps.apo = None
         self.engine = maps.MapEngine()
-        mapView = mapview.MapView(self.engine, self._exitApp)
+        mapView = mapview.MapView(self.engine, self, self._exitApp)
         self.engine.setCallback(mapView.update)
         providers = map(lambda name: unicode(name), self.engine.providers())
         selection = appuifw.selection_list(providers)
@@ -40,6 +40,9 @@ class LostApp:
     def start(self):
         self.engine.start()
         self.__mainloop.start()
+
+    def changeView(self, viewName):
+        view = locations.LocationsView(locations.LocationStore())
 
     def _exitApp(self):
         self.engine.close()

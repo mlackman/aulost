@@ -2,48 +2,7 @@ import appuifw
 import key_codes
 import graphics
 import time
-
-class LocationDlg(object):
-    
-    def __init__(self):
-        fields = [(u'Name', 'text'), (u'Date', 'date', time.time())]
-        self._form = appuifw.Form(fields)
-        self._form.save_hook = self._saveHook
-
-    def execute(self):
-        self._saved = False
-        self._form.execute()
-        if self._saved:
-            return self._form[0][2], self._form[1][2]
-
-    def _saveHook(self, arg):
-        self._saved = True    
-
-class LocationStore(object):
-    
-    def __init__(self):
-        self._store = 'locations.txt'
-        f = open(self._store,'a') # create the file
-        f.close()
-        
-    def add(self, locationInfo):
-        f = open(self._store, 'a')
-        txt, date, position = locationInfo
-        lat,lon = position
-        s = '%s,%f,%f,%f\n' % (txt, date, lat,lon)
-        f.write(s)
-        f.close()
-        
-    def items(self):
-        f = open(self._store, 'rt')
-        lines = f.readlines()
-        f.close()
-
-        infos = []
-        for line in lines:
-            txt,date,lat,lon = line.split(',')
-            infos.append((txt,float(date),(float(lat),float(lon))))
-        return infos
+import locations
 
 class MapLayer(object):
         
@@ -83,7 +42,8 @@ class CursorLayer(object):
 
 class MapView(object):
     
-    def __init__(self, mapEngine, exitCallback):
+    def __init__(self, mapEngine, viewManager, exitCallback):
+        self._viewManager = viewManager
         self._engine = mapEngine
         self._layers = [MapLayer(self._engine), CursorLayer(self._engine.gps)]
         appuifw.app.body = appuifw.Canvas(self._redraw,self._keypressed, self._resize)
@@ -133,19 +93,12 @@ class MapView(object):
         appuifw.app.screen='full'
 
     def _storeLocation(self):
-        dlg = LocationDlg()
-        values = dlg.execute()
-        if values:
-            text, date = values
-            store = LocationStore()
-            lat,lon = self._engine.currentPosition
-            store.add((text,date,self._engine.currentPosition))
+        dlg = locations.SaveLocationDlg(locations.LocationStore())
+        values = dlg.execute(self._engine.currentPosition)           
 
     def _viewLocations(self):
-        store = LocationStore()
-        infos = store.items()
-        infoTxts = map(lambda info: unicode(info[0]), infos)
-        appuifw.selection_list(infoTxts)
+        self._engine.gps.stop()
+        self._viewManager.changeView('LocationsView')
 
     def _goto(self):
         self._engine.gotoLocation((65.794404,24.88808)) 
