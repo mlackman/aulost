@@ -55,8 +55,6 @@ class Worker(object):
         self.thread.join()
 
     def run(self):
-        if apo:
-            socket.set_default_access_point(apo)
         while self.running:
             if self.job:
                 self.job()
@@ -68,11 +66,13 @@ class Worker(object):
 
 class MapDownloader(object):
 
-    def __init__(self, images, mapLoadedCallback):
+    def __init__(self, images, mapLoadedCallback, downloadExceptionCallback):
+        self._downloadExceptionCallback = downloadExceptionCallback
         self.mapLoadedCallback = mapLoadedCallback
         self.worker = Worker(self.mapPieceLoaded)
         self.urls = []
         self.images = images
+        self._accessPointChanged = True
 
     def add(self, url):
         """Starts loading map pieces which image is none. 
@@ -92,9 +92,19 @@ class MapDownloader(object):
         try:    
             image = graphics.Image.open(filename)
         except:
+            global apo
             if apo:
-                f = urllib.urlretrieve(url,filename)
-                image = graphics.Image.open(filename)
+                if self._accessPointChanged:
+                    socket.set_default_access_point(apo)
+                    self._accessPointChanged = False
+                try:
+                    f = urllib.urlretrieve(url,filename)
+                    image = graphics.Image.open(filename)
+                except:
+                    self._downloadExceptionCallback()
+                    apo = None       
+                    self._accessPointChanged = True
+
         if image:
             self.images.add(url, image)
         self.urls.pop(0)
@@ -132,7 +142,7 @@ class GPS(object):
 
 class MapEngine(object):
         
-    def __init__(self):
+    def __init__(self, downloadExceptionCallback):
         self.currentPosition = (65.681264, 24.755917)
         self._provider = None
         self._providers = {}
@@ -144,7 +154,9 @@ class MapEngine(object):
                     self._providers[provider.name] = provider
         self.map = None
         self._mapCache = Images()
-        self._loader = MapDownloader(self._mapCache, e32.ao_callgate(self._imageLoaded))
+        self._loader = MapDownloader(\
+            self._mapCache, e32.ao_callgate(self._imageLoaded), \
+            e32.ao_callgate(downloadExceptionCallback))
         self.gps = GPS(self._positionChanged)
 
     def setCallback(self, callback):
