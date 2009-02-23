@@ -25,7 +25,9 @@ class LostApp:
         else:
             maps.apo = None
         self.engine = maps.MapEngine()
-        self._views = {'MapView':mapview.MapView(self.engine, self, self._exitApp), 'LocationsView':locations.LocationsView(locations.LocationStore(), self)}
+        self._views = {'MapView':mapview.MapView(self.engine, self, self._exitApp),\
+                       'LocationsView':locations.LocationsView(locations.LocationStore(),\
+                                                               self, self.engine)}
         self.engine.setCallback(self._views['MapView'].update)
         self.changeView('MapView')
         providers = map(lambda name: unicode(name), self.engine.providers())

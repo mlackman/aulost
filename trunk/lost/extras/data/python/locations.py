@@ -25,16 +25,23 @@ class SaveLocationDlg(object):
 
 class LocationsView(object):
     
-    def __init__(self, locationStore, viewManager):
+    def __init__(self, locationStore, viewManager, engine):
         self._viewManager = viewManager
         self._store = locationStore
+        self._locations = None
+        self._engine = engine
 
     def activate(self):
-        locations = self._store.read()
-        if locations:
-            nameAndDates = [(unicode(info.name),unicode(info.date)) for info in locations]
+        self._locations = self._store.read()
+        if self._locations:
+            nameAndDates = [(unicode(info.name),unicode(info.date)) for info in self._locations]
             appuifw.app.body = appuifw.Listbox(nameAndDates,self._selectionCallback)
-            appuifw.app.menu = [(u'Back to map', self._toMapView)]
+            appuifw.app.menu = [(u'View', self._view),
+                                (u'Navigate', self._navigate),
+                                (u'Edit', self._edit),
+                                (u'Delete', self._delete),
+                                (u'Back to map', self._toMapView)]
+            
         else:
             appuifw.note(u'No saved locations', 'info')
             self._toMapView()
@@ -44,6 +51,20 @@ class LocationsView(object):
 
     def _toMapView(self):
         self._viewManager.changeView('MapView')
+    
+    def _view(self):
+        info = self._locations[appuifw.app.body.current()]
+        self._engine.currentPosition = info.position
+        self._toMapView()
+
+    def _navigate(self):
+        pass
+        
+    def _edit(self):
+        pass
+        
+    def _delete(self):
+        pass
 
 class LocationInfo(object):
     
