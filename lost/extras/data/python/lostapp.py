@@ -18,13 +18,8 @@ class MainLoop(object):
 
 class LostApp:
     def __init__(self):
-        apid = socket.select_access_point()  #Prompts you to select the access point
-        if apid:
-            apo = socket.access_point(apid)      #apo is the access point you selected     
-            maps.apo = apo
-        else:
-            maps.apo = None
-        self.engine = maps.MapEngine()
+        self._selectAccessPoint()
+        self.engine = maps.MapEngine(self._downloadException)
         self._views = {'MapView':mapview.MapView(self.engine, self, self._exitApp),\
                        'LocationsView':locations.LocationsView(locations.LocationStore(),\
                                                                self, self.engine)}
@@ -50,6 +45,21 @@ class LostApp:
     def _exitApp(self):
         self.engine.close()
         self.__mainloop.stop()
+
+    def _downloadException(self):
+        result = appuifw.query(u'Current access point could not be used! Select new one?',\
+                              'query')
+        if result:
+            self._selectAccessPoint()
+            self.engine.update()
+
+    def _selectAccessPoint(self):
+        apid = socket.select_access_point()  #Prompts you to select the access point
+        if apid:
+            apo = socket.access_point(apid)      #apo is the access point you selected     
+            maps.apo = apo
+        else:
+            maps.apo = None
         
         
 
