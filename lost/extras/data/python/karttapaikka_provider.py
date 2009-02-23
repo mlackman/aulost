@@ -378,6 +378,7 @@ class Karttapaikka(object):
         if zoomIndex != 0:
             zoomIndex -= 1
         self.zoomLevel = zoomLevels[zoomIndex]
+
     def __calculateMapArea(self, centerLocation, size):
         """Calculates map area.
         Parameters:
