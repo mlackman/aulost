@@ -1,0 +1,2 @@
+#/bin/bash
+python /home/mlackman/PythonForS60/ensymble.py py2sis  --caps=Location+LocalServices+NetworkServices+ReadUserData+WriteUserData+UserEnvironment --heapsize=12k,4M --uid=0xe04584aa --extrasdir=extras --appname=lost --version=0.2.0 --caption=Lost lost sis/lost_V0_20.sis
