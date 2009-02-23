@@ -88,6 +88,7 @@ class MapDownloader(object):
         """Loads map piece in different thread"""
         url = self.urls[0]
         filename = url[len(r'http://'):].replace('/','(').replace('.','!').replace('?','#').replace(':','_')
+        image = None
         try:    
             image = graphics.Image.open(filename)
         except:
