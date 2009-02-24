@@ -5,9 +5,19 @@ import os
 
 class SaveLocationDlg(object):
     
-    def __init__(self, locationStore):
+    def __init__(self, locationStore, initialName=None, initialDateStr=None):
         self._locationStore = locationStore
-        fields = [(u'Name', 'text'), (u'Date', 'date', time.time())]
+        if initialName:
+            nameField = (u'Name','text',unicode(initialName))
+        else:
+            nameField = (u'Name', 'text')
+        if initialDateStr:
+            year,month,day = initialDateStr.split('-')
+            initialDate = datetime.date(int(year), int(month), int(day))
+            timeField = (u'date','date', time.mktime(initialDate.timetuple()))
+        else:
+            timeField = (u'Date', 'date', time.time())
+        fields = [nameField, timeField]
         self._form = self._createForm(fields)
         self._form.save_hook = self._saveHook
 
@@ -17,6 +27,7 @@ class SaveLocationDlg(object):
         if self._saved:
             name, date = self._form[0][2], self._form[1][2]
             self._locationStore.save(LocationInfo(name,str(datetime.date.fromtimestamp(date)),position))
+        return self._saved
 
     def _saveHook(self, arg):
         self._saved = True  
@@ -55,7 +66,7 @@ class LocationsView(object):
         self._viewManager.changeView('MapView')
     
     def _view(self):
-        info = self._locations[appuifw.app.body.current()]
+        info = self._selectedInfo()
         self._engine.currentPosition = info.position
         self._toMapView()
 
@@ -63,22 +74,31 @@ class LocationsView(object):
         pass
         
     def _edit(self):
-        pass
+        info = self._selectedInfo()
+        dlg = SaveLocationDlg(self._store, info.name, info.date)
+        saved = dlg.execute(info.position)
+        if saved:
+            self._deleteInfo(info)
+            self._locations = self._store.read()
+            appuifw.app.body.set_list(self._listItems())
         
     def _delete(self):
-        # TODO: Move to mapview when last info has been deleted
-        info = self._locations[appuifw.app.body.current()]
-        self._locations.remove(info)
-        self._store.delete(info)
+        self._deleteInfo(self._selectedInfo())
         if self._locations:
             appuifw.app.body.set_list(self._listItems())
         else:
             appuifw.note(u'No more locations', 'info')
             self._toMapView()
 
+    def _deleteInfo(self, info):
+        self._locations.remove(info)
+        self._store.delete(info)       
+
     def _listItems(self):
         return [(unicode(info.name),unicode(info.date)) for info in self._locations]
-        
+
+    def _selectedInfo(self):
+        return self._locations[appuifw.app.body.current()]
 
 class LocationInfo(object):
     
@@ -129,10 +149,8 @@ class LocationStore(object):
     def delete(self, info):
         infos = self.read()
         infos.remove(info)
-        if infos:
-            map(lambda info: self._save(info, 'wt'), infos)
-        else:
-            self._openFile('wt').close() # Empties the file
+        self._openFile('wt').close() # Empties the file
+        map(lambda info: self._save(info, 'at'), infos)
 
     def _openFile(self, mode):
         return open('locations.txt', mode)
