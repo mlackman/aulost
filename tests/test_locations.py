@@ -45,7 +45,6 @@ class TestLocationStore(unittest.TestCase):
         
         self.assertEquals(locationInfos, [LocationInfo('name','25.4.2006',(65.0,25.0)),\
                                           LocationInfo('name2','25.4.2006',(66.0,26.0))])
-
         
 
 
