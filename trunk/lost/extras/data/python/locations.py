@@ -1,6 +1,7 @@
 import appuifw 
 import time
 import datetime
+import os
 
 class SaveLocationDlg(object):
     
@@ -34,8 +35,8 @@ class LocationsView(object):
     def activate(self):
         self._locations = self._store.read()
         if self._locations:
-            nameAndDates = [(unicode(info.name),unicode(info.date)) for info in self._locations]
-            appuifw.app.body = appuifw.Listbox(nameAndDates,self._selectionCallback)
+            listItems = self._listItems()
+            appuifw.app.body = appuifw.Listbox(listItems,self._selectionCallback)
             appuifw.app.menu = [(u'View', self._view),
                                 (u'Navigate', self._navigate),
                                 (u'Edit', self._edit),
@@ -47,6 +48,7 @@ class LocationsView(object):
             self._toMapView()
 
     def _selectionCallback(self):
+        # TODO: What to do, go to mapview and show the location?
         pass
 
     def _toMapView(self):
@@ -64,7 +66,19 @@ class LocationsView(object):
         pass
         
     def _delete(self):
-        pass
+        # TODO: Move to mapview when last info has been deleted
+        info = self._locations[appuifw.app.body.current()]
+        self._locations.remove(info)
+        self._store.delete(info)
+        if self._locations:
+            appuifw.app.body.set_list(self._listItems())
+        else:
+            appuifw.note(u'No more locations', 'info')
+            self._toMapView()
+
+    def _listItems(self):
+        return [(unicode(info.name),unicode(info.date)) for info in self._locations]
+        
 
 class LocationInfo(object):
     
@@ -110,10 +124,22 @@ class LocationStore(object):
         return infos
 
     def save(self, locationInfo):
+        self._save(locationInfo, 'a')
 
-        f = self._openFile('a')
-        f.write(str(locationInfo)+'\n')
-        f.close()
+    def delete(self, info):
+        infos = self.read()
+        infos.remove(info)
+        if infos:
+            map(lambda info: self._save(info, 'wt'), infos)
+        else:
+            self._openFile('wt').close() # Empties the file
 
     def _openFile(self, mode):
         return open('locations.txt', mode)
+
+    def _save(self,info,mode):
+        f = self._openFile(mode)
+        f.write(str(info)+'\n')
+        f.close()
+
+        
