@@ -2,4 +2,6 @@
 
 = Instructions =
 
-Before installing the lost.sis you need to install Python to your phone. The Python interpreter can be downloaded from https://garage.maemo.org/projects/pys60. Download the suitable version for you phone for example Python_1.9.1_3rdEdFP2.sis
+Before installing the lost.sis you need to install Python to your phone. The Python interpreter can be downloaded from https://garage.maemo.org/projects/pys60. Download the suitable version for you phone for example Python_1.9.2_3rdEdFP2.sis
+
+Note that if your phone is 3rd edition phone then you must sign the sis package with https://www.symbiansigned.com/app/page/public/openSignedOnline.do Open signed]
