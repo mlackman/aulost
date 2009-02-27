@@ -1,2 +1,2 @@
 #/bin/bash
-python /home/mlackman/PythonForS60/ensymble.py py2sis  --mode=pys60 --caps=Location+LocalServices+NetworkServices+ReadUserData+WriteUserData+UserEnvironment --heapsize=12k,4M --uid=0xe04584aa --extrasdir=extras --appname=lost --version=0.2.1 --caption=Lost lost sis/lost_V0_21.sis
+python /home/mlackman/PythonForS60/ensymble.py py2sis  --mode=pys60 --caps=Location+LocalServices+NetworkServices+ReadUserData+WriteUserData+UserEnvironment --heapsize=12k,4M --uid=0xe04584aa --extrasdir=extras --appname=lost --version=0.2.3 --caption=Lost lost sis/lost_V0_23.sis
