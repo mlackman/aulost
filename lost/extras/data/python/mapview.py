@@ -130,6 +130,8 @@ class MapView(object):
         self._engine.gotoLocation((65.794404,24.88808)) 
 
     def _startGPS(self):
+        if self._engine.gps.seekingSatellites or self._engine.gps.active:
+            return
         self._engine.gps.start()
         self.update()
 
