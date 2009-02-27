@@ -214,6 +214,7 @@ class MapEngine(object):
 
     def _positionChanged(self, event):
         """Callback from gps"""
+        e32.reset_inactivity()
         pos = event['position']
         lat = pos['latitude']
         lon = pos['longitude']
