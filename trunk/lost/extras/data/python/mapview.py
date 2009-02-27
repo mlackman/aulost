@@ -26,26 +26,47 @@ class MapLayer(object):
 
 class CursorLayer(object):
     
-    def __init__(self, gps):
-        self._gps = gps
+    def __init__(self):
+        pass
 
     def update(self):
         width,height = appuifw.app.body.size
         centerX = width / 2
         centerY = height / 2
-        lineWidth = 1
-        if self._gps.active:
-            lineWidth = 2
+        lineWidth = 2
         appuifw.app.body.rectangle((centerX-15,centerY-15,centerX+15,centerY+15),(0,0,0), width=lineWidth)
         appuifw.app.body.line((centerX - 50, centerY, centerX + 50, centerY),(0,0,0),width=lineWidth)
         appuifw.app.body.line((centerX, centerY-50, centerX, centerY+50),(0,0,0),width=lineWidth)
+
+class InfoLayer(object):
+    
+    def __init__(self, gps):
+        self._gps = gps
+
+    def update(self):
+        if self._gps.seekingSatellites or self._gps.active:
+            self._drawGPS() 
+
+    def _drawGPS(self):
+        canvas = appuifw.app.body
+        font = (None, None, graphics.FONT_BOLD)
+        boundingBox, movement, nmbrOfChars = canvas.measure_text(u'GPS', font)
+        x,y,x1,y1 = boundingBox
+        width,height = canvas.size
+        pos = (width-x1-5, -y+5)
+        canvas.text(pos, u'GPS', font=font)
+        if self._gps.active:
+            x,y = pos
+            canvas.rectangle((x-2,2,width-2,y+2),(0,0,0),width=2)
+        
 
 class MapView(object):
     
     def __init__(self, mapEngine, viewManager, exitCallback):
         self._viewManager = viewManager
         self._engine = mapEngine
-        self._layers = [MapLayer(self._engine), CursorLayer(self._engine.gps)]
+        self._layers = [MapLayer(self._engine), CursorLayer(),\
+                        InfoLayer(self._engine.gps)]
         self._exitCallback = exitCallback
         
 
@@ -57,7 +78,7 @@ class MapView(object):
                              (u'Full',   self._fullSize))),
                         (u'Zoom in', self._engine.zoomIn),
                         (u'Zoom out', self._engine.zoomOut),
-                        (u'Locate', self._engine.gps.start),
+                        (u'Locate', self._startGPS),
                         (u'Goto', self._goto),
                         (u'Store location', self._storeLocation),
                         (u'View locations', self._viewLocations),
@@ -107,4 +128,8 @@ class MapView(object):
 
     def _goto(self):
         self._engine.gotoLocation((65.794404,24.88808)) 
+
+    def _startGPS(self):
+        self._engine.gps.start()
+        self.update()
 
