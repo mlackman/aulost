@@ -3,6 +3,18 @@ import key_codes
 import graphics
 import time
 import locations
+import math
+
+def rotatePoint(point, rad):
+    x,y = point
+    newX = x * math.cos(rad) - y * math.sin(rad)
+    newY = y * math.cos(rad) + x * math.sin(rad)
+    return newX,newY
+
+def translatePoint(point, pos):
+    x,y = point
+    centerX,centerY = pos
+    return centerX+x, centerY - y
 
 class MapLayer(object):
         
@@ -24,19 +36,45 @@ class MapLayer(object):
             white = (255,255,255)
             appuifw.app.body.rectangle(area, white,fill=white)
 
-class CursorLayer(object):
+class HeadingArrow(object):
     
     def __init__(self):
-        pass
+        self._points = [(5.0,0.0),(-5.0,5.0),(-5,-5.0)]
+        self.pos = (0.0,0.0)
+        self.angle = 0
+        
+
+    def draw(self):
+        rad = math.radians(self.angle)
+        newPoints = map(lambda point: rotatePoint(point,rad), self._points)
+        newPoints = map(lambda point: translatePoint(point, self.pos), newPoints)
+        canvas = appuifw.app.body
+        canvas.polygon(newPoints, (0,0,0),fill=(255,0,0),width=2)         
+
+class CursorLayer(object):
+    
+    def __init__(self, gps):
+        self._gps = gps
 
     def update(self):
-        width,height = appuifw.app.body.size
+        canvas = appuifw.app.body
+        width,height = canvas.size
         centerX = width / 2
         centerY = height / 2
         lineWidth = 2
-        appuifw.app.body.rectangle((centerX-15,centerY-15,centerX+15,centerY+15),(0,0,0), width=lineWidth)
-        appuifw.app.body.line((centerX - 50, centerY, centerX + 50, centerY),(0,0,0),width=lineWidth)
-        appuifw.app.body.line((centerX, centerY-50, centerX, centerY+50),(0,0,0),width=lineWidth)
+        canvas.ellipse((centerX-15,centerY-15,centerX+15,centerY+15),(0,0,0), width=lineWidth)
+        canvas.line((centerX - 50, centerY, centerX + 50, centerY),(0,0,0),width=lineWidth)
+        canvas.line((centerX, centerY-50, centerX, centerY+50),(0,0,0),width=lineWidth)
+
+        if self._gps.active and self._gps.heading:
+            x,y = 20.0, 0.0
+            angle = 90 - self._gps.heading
+            rad = math.radians(angle)
+            newX, newY = rotatePoint((x,y), rad)
+            arrow = HeadingArrow()
+            arrow.angle = angle
+            arrow.pos = centerX+newX,centerY-newY
+            arrow.draw()
 
 class InfoLayer(object):
     
@@ -65,7 +103,7 @@ class MapView(object):
     def __init__(self, mapEngine, viewManager, exitCallback):
         self._viewManager = viewManager
         self._engine = mapEngine
-        self._layers = [MapLayer(self._engine), CursorLayer(),\
+        self._layers = [MapLayer(self._engine), CursorLayer(self._engine.gps),\
                         InfoLayer(self._engine.gps)]
         self._exitCallback = exitCallback
         

@@ -123,6 +123,7 @@ class GPS(object):
         self._callback = callback
         self.seekingSatellites = False
         self.active = False
+        self.heading = None
 
     def start(self):
         self.seekingSatellites = True
@@ -136,6 +137,9 @@ class GPS(object):
         positioning.stop_position()
     
     def _dataReceived(self, event):
+        heading = event['course']['heading']
+        if str(heading) != 'nan':
+            self.heading = heading
         self.seekingSatellites = False
         self.active = True
         self._callback(event)
