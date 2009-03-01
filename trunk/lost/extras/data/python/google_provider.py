@@ -47,6 +47,7 @@ class Map(object):
         self.mapPieces = []
         self.center = centerLocation
         self.zoom = zoomLevel
+        self.size = size
         latitude,longitude = centerLocation
         col,row,zoom,tiles = google.locationCoord(latitude,longitude, zoomLevel)
         width, height = size
@@ -77,13 +78,25 @@ class Map(object):
         for row in range(int(startRow), int(lastRow)):
             currentX = startX
             for column in range(int(startCol), int(lastCol)):
-                print column
                 mp = MapPiece(column, row, zoom)
                 mp.x = currentX
                 mp.y = currentY
                 currentX += google.TILE_SIZE    
                 self.mapPieces.append(mp)
             currentY += google.TILE_SIZE
+
+    def toScreenCoordinates(self, position):
+        scrCenterLat, scrCenterLon = self.center
+        scrCenterY = int(latToY(scrCenterLat))
+        scrCenterX = int(lonToX(scrCenterLon))
+        wantedLat, wantedLon = position
+        wantedY = int(latToY(wantedLat))
+        wantedX = int(lonToX(wantedLon))
+        dx = (wantedX - scrCenterX) >> (21-self.zoom)
+        dy = (wantedY - scrCenterY) >> (21-self.zoom)
+        width,height = self.size
+        return dx+width/2, height/2+dy
+        
 
     def move(self, dx, dy):
         for map in self.mapPieces:
@@ -110,4 +123,9 @@ class Google(object):
 
     def getMap(self, centerLocation, size):
         return Map(centerLocation, size, self.zoomLevel)
+
+if __name__ == '__main__':
+    g = Google()
+    m = g.getMap((65.681264, 24.755917), (200,200))
+    print m.toScreenCoordinates((65.681422,24.76917))
 

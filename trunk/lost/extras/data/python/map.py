@@ -201,11 +201,16 @@ class MapEngine(object):
             self._provider.zoomOut()
             self._updateMap()
 
-
     def gotoLocation(self, position):
         self.gps.stop()
         self.currentPosition = position
         self._updateMap()
+
+    def toScreenCoordinates(self, position):
+        if self.map:
+            return self.map.toScreenCoordinates(position)
+        else:
+            return (0,0)
 
     def _imageLoaded(self):
         self._updateImages()
