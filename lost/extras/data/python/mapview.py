@@ -146,7 +146,7 @@ class MapView(object):
         if not hasattr(appuifw.app.body,'blit'):
             return
         map(lambda layer: layer.update(), self._layers)
-
+        
     def _normalSize(self):
         appuifw.app.screen='normal'
         

@@ -324,6 +324,7 @@ class Map(object):
         self.__centerLocation = centerLocationKKJ
         self.__rects = rects
         self._zoomLevel = zoomLevel
+        self.size = size
         cpp = _CPP[zoomLevel]
         topNorth, topEast = self.__calculateTopLeftCoordinateOfRequestedMap(size)
         for r in rects:
@@ -342,6 +343,17 @@ class Map(object):
         yKKJ += dx * cpp
         self.__centerLocation = (xKKJ,yKKJ)
         self.center = MapCoordinate(self.__centerLocation, 'KKJ').WGS84()
+
+    def toScreenCoordinates(self, position):
+        xKKJ,yKKJ = self.__centerLocation
+        wantedXKKJ, wantedYKKJ = MapCoordinate(position, 'WGS84').KKJ()
+        dxKKJ = wantedXKKJ - xKKJ
+        dyKKJ = wantedYKKJ - yKKJ
+        cpp = _CPP[self._zoomLevel]
+        dx = dxKKJ / cpp
+        dy = dyKKJ / cpp
+        width,height = self.size
+        return dy+width/2, height/2-dx
 
     def __calculateTopLeftCoordinateOfRequestedMap(self, size):
         cpp = _CPP[self._zoomLevel]
