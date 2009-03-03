@@ -137,9 +137,9 @@ class MapProviders(object):
 
 class MapEngine(object):
         
-    def __init__(self, gps, mapProviders, downloadExceptionCallback):
+    def __init__(self, gps, downloadExceptionCallback):
         self.gps = gps
-        self._mapProviders = mapProviders
+        self._provider = None
         gps.addObserver(self._positionChanged)
         self.currentPosition = (65.681264, 24.755917)
         self.track = []
@@ -149,6 +149,8 @@ class MapEngine(object):
             self._mapCache, e32.ao_callgate(self._imageLoaded), \
             e32.ao_callgate(downloadExceptionCallback))
 
+    def setMapProvider(self, provider):
+        self._provider = provider
 
     def setCallback(self, callback):
         self._mapInformationChagedCallback = callback
@@ -173,15 +175,13 @@ class MapEngine(object):
         self._mapInformationChagedCallback()
 
     def zoomIn(self):
-        provider = self._mapProviders.provider
-        if provider:
-            provider.zoomIn()
+        if self._provider:
+            self._provider.zoomIn()
             self._updateMap()
 
     def zoomOut(self):
-        provider = self._mapProviders.provider
-        if provider:
-            provider.zoomOut()
+        if self._provider:
+            self._provider.zoomOut()
             self._updateMap()
 
     def gotoLocation(self, position):
@@ -212,12 +212,10 @@ class MapEngine(object):
             self.track.append(self.currentPosition)
             self._updateMap()
 
-
     def _updateMap(self):
-        provider= self._mapProviders.provider
-        if not provider or not hasattr(appuifw.app.body,'size'):
+        if not self._provider or not hasattr(appuifw.app.body,'size'):
             return
-        newMap = provider.getMap(self.currentPosition, appuifw.app.body.size)
+        newMap = self._provider.getMap(self.currentPosition, appuifw.app.body.size)
         if self.map:
             for oldMapPiece in self.map.mapPieces:
                 for newMapPiece in newMap.mapPieces:

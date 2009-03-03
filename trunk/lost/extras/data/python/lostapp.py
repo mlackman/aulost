@@ -21,7 +21,7 @@ class LostApp:
     def __init__(self):
         self._selectAccessPoint()
         providers = maps.MapProviders()
-        self.engine = maps.MapEngine(gps.GPS(), providers, self._downloadException)
+        self.engine = maps.MapEngine(gps.GPS(), self._downloadException)
         self._views = {'MapView':mapview.MapView(self.engine, self, self._exitApp),\
                        'LocationsView':locations.LocationsView(locations.LocationStore(),\
                                                                self, self.engine)}
@@ -32,6 +32,7 @@ class LostApp:
         selection = appuifw.selection_list(providerNames)
         if selection is not None:
             providers.setProvider(providerNames[selection])
+            self.engine.setMapProvider(providers.provider)
         
         appuifw.app.title = u'Lost'
 
