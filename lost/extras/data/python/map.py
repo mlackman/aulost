@@ -5,6 +5,7 @@ import urllib
 import graphics
 import socket
 import os
+import gps
 
 apo = 0 # access point
 
@@ -114,23 +115,34 @@ class MapDownloader(object):
            Loads next map piece if there are still something to load"""
         if self.urls:
             self.worker.setJob(self.loadMapPiece)  
-        self.mapLoadedCallback()
+        self.mapLoadedCallback()   
 
-class MapEngine(object):
-        
-    def __init__(self, gps, downloadExceptionCallback):
-        self.gps = gps
-        gps.addObserver(self._positionChanged)
-        self.currentPosition = (65.681264, 24.755917)
-        self._provider = None
+class MapProviders(object):
+    
+    def __init__(self):
+        self.provider = None
         self._providers = {}
-        self.track = []
         for root,dir,files in os.walk('c:\\data\\python'):
             for file in files:
                 if file.endswith('_provider.py'):
                     providerModule = __import__(file[:-3])
                     provider = providerModule.provider()
                     self._providers[provider.name] = provider
+
+    def providers(self):
+        return self._providers.keys()
+
+    def setProvider(self, providerName):
+        self.provider = self._providers[providerName]
+
+class MapEngine(object):
+        
+    def __init__(self, gps, mapProviders, downloadExceptionCallback):
+        self.gps = gps
+        self._mapProviders = mapProviders
+        gps.addObserver(self._positionChanged)
+        self.currentPosition = (65.681264, 24.755917)
+        self.track = []
         self.map = None
         self._mapCache = Images()
         self._loader = MapDownloader(\
@@ -140,12 +152,6 @@ class MapEngine(object):
 
     def setCallback(self, callback):
         self._mapInformationChagedCallback = callback
-
-    def providers(self):
-        return self._providers.keys()
-
-    def setProvider(self, providerName):
-        self._provider = self._providers[providerName]
 
     def update(self):
         self._updateMap()
@@ -167,13 +173,15 @@ class MapEngine(object):
         self._mapInformationChagedCallback()
 
     def zoomIn(self):
-        if self._provider:
-            self._provider.zoomIn()
+        provider = self._mapProviders.provider
+        if provider:
+            provider.zoomIn()
             self._updateMap()
 
     def zoomOut(self):
-        if self._provider:
-            self._provider.zoomOut()
+        provider = self._mapProviders.provider
+        if provider:
+            provider.zoomOut()
             self._updateMap()
 
     def gotoLocation(self, position):
@@ -206,9 +214,10 @@ class MapEngine(object):
 
 
     def _updateMap(self):
-        if not self._provider or not hasattr(appuifw.app.body,'size'):
+        provider= self._mapProviders.provider
+        if not provider or not hasattr(appuifw.app.body,'size'):
             return
-        newMap = self._provider.getMap(self.currentPosition, appuifw.app.body.size)
+        newMap = provider.getMap(self.currentPosition, appuifw.app.body.size)
         if self.map:
             for oldMapPiece in self.map.mapPieces:
                 for newMapPiece in newMap.mapPieces:
