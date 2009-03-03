@@ -4,6 +4,7 @@ import e32
 import appuifw
 import mapview
 import locations
+import gps
 
 class MainLoop(object):
     
@@ -19,7 +20,7 @@ class MainLoop(object):
 class LostApp:
     def __init__(self):
         self._selectAccessPoint()
-        self.engine = maps.MapEngine(self._downloadException)
+        self.engine = maps.MapEngine(gps.GPS(), self._downloadException)
         self._views = {'MapView':mapview.MapView(self.engine, self, self._exitApp),\
                        'LocationsView':locations.LocationsView(locations.LocationStore(),\
                                                                self, self.engine)}

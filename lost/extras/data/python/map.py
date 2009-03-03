@@ -1,4 +1,3 @@
-import positioning 
 import threading
 import e32
 import appuifw
@@ -117,43 +116,11 @@ class MapDownloader(object):
             self.worker.setJob(self.loadMapPiece)  
         self.mapLoadedCallback()
 
-class GPS(object):
-
-    def __init__(self, callback):
-        self._callback = callback
-        self.seekingSatellites = False
-        self.active = False
-        self.heading = None
-        self.position = None
-
-    def start(self):
-        self.seekingSatellites = True
-        positioning.select_module(positioning.default_module())
-        positioning.set_requestors([{"type":"service", "format":"application", "data":"test_app"}])
-        positioning.position(course=1,satellites=1, callback=self._dataReceived, interval=1000000, partial=0)
-
-    def stop(self):
-        self.active = False
-        self.seekingSatellites = False
-        positioning.stop_position()
-    
-    def _dataReceived(self, event):
-        self.seekingSatellites = False
-        self.active = True
-        pos = event['position']
-        lat = pos['latitude']
-        lon = pos['longitude']
-        if str(lat) != 'nan' and str(lon) != 'nan':
-            self.position = (lat,lon)
-
-        heading = event['course']['heading']
-        if str(heading) != 'nan':
-            self.heading = heading
-        self._callback()
-
 class MapEngine(object):
         
-    def __init__(self, downloadExceptionCallback):
+    def __init__(self, gps, downloadExceptionCallback):
+        self.gps = gps
+        gps.addObserver(self._positionChanged)
         self.currentPosition = (65.681264, 24.755917)
         self._provider = None
         self._providers = {}
@@ -169,7 +136,7 @@ class MapEngine(object):
         self._loader = MapDownloader(\
             self._mapCache, e32.ao_callgate(self._imageLoaded), \
             e32.ao_callgate(downloadExceptionCallback))
-        self.gps = GPS(self._positionChanged)
+
 
     def setCallback(self, callback):
         self._mapInformationChagedCallback = callback
