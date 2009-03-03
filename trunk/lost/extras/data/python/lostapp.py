@@ -20,16 +20,18 @@ class MainLoop(object):
 class LostApp:
     def __init__(self):
         self._selectAccessPoint()
-        self.engine = maps.MapEngine(gps.GPS(), self._downloadException)
+        providers = maps.MapProviders()
+        self.engine = maps.MapEngine(gps.GPS(), providers, self._downloadException)
         self._views = {'MapView':mapview.MapView(self.engine, self, self._exitApp),\
                        'LocationsView':locations.LocationsView(locations.LocationStore(),\
                                                                self, self.engine)}
         self.engine.setCallback(self._views['MapView'].update)
         self.changeView('MapView')
-        providers = map(lambda name: unicode(name), self.engine.providers())
-        selection = appuifw.selection_list(providers)
+        
+        providerNames = map(lambda name: unicode(name), providers.providers())
+        selection = appuifw.selection_list(providerNames)
         if selection is not None:
-            self.engine.setProvider(providers[selection])
+            providers.setProvider(providerNames[selection])
         
         appuifw.app.title = u'Lost'
 
