@@ -124,6 +124,7 @@ class GPS(object):
         self.seekingSatellites = False
         self.active = False
         self.heading = None
+        self.position = None
 
     def start(self):
         self.seekingSatellites = True
@@ -137,12 +138,18 @@ class GPS(object):
         positioning.stop_position()
     
     def _dataReceived(self, event):
+        self.seekingSatellites = False
+        self.active = True
+        pos = event['position']
+        lat = pos['latitude']
+        lon = pos['longitude']
+        if str(lat) != 'nan' and str(lon) != 'nan':
+            self.position = (lat,lon)
+
         heading = event['course']['heading']
         if str(heading) != 'nan':
             self.heading = heading
-        self.seekingSatellites = False
-        self.active = True
-        self._callback(event)
+        self._callback()
 
 class MapEngine(object):
         
@@ -150,6 +157,7 @@ class MapEngine(object):
         self.currentPosition = (65.681264, 24.755917)
         self._provider = None
         self._providers = {}
+        self.track = []
         for root,dir,files in os.walk('c:\\data\\python'):
             for file in files:
                 if file.endswith('_provider.py'):
@@ -221,14 +229,12 @@ class MapEngine(object):
             if not m.image:
                 m.image = self._mapCache.get(m.url)
 
-    def _positionChanged(self, event):
+    def _positionChanged(self):
         """Callback from gps"""
         e32.reset_inactivity()
-        pos = event['position']
-        lat = pos['latitude']
-        lon = pos['longitude']
-        if str(lat) != 'nan' and str(lon) != 'nan':
-            self.currentPosition = (lat,lon)
+        if self.gps.position:
+            self.currentPosition = self.gps.position
+            self.track.append(self.currentPosition)
             self._updateMap()
 
 
