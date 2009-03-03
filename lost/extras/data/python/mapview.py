@@ -96,7 +96,22 @@ class InfoLayer(object):
         if self._gps.active:
             x,y = pos
             canvas.rectangle((x-2,2,width-2,y+2),(0,0,0),width=2)
-        
+
+class TrackLayer(object):
+    
+    def __init__(self, engine):
+        self._engine = engine
+    
+    def update(self):
+        if self._engine.map:
+            self._drawTrack()
+
+    def _drawTrack(self):
+        track = self._engine.track
+        mapPiece = self._engine.map
+        coordinates = map(lambda location: mapPiece.toScreenCoordinates(location), track)
+        if len(coordinates) > 1:
+            appuifw.app.body.line(coordinates,(255,0,0),width=2)
 
 class MapView(object):
     
@@ -104,7 +119,7 @@ class MapView(object):
         self._viewManager = viewManager
         self._engine = mapEngine
         self._layers = [MapLayer(self._engine), CursorLayer(self._engine.gps),\
-                        InfoLayer(self._engine.gps)]
+                        InfoLayer(self._engine.gps), TrackLayer(self._engine)]
         self._exitCallback = exitCallback
         
 
