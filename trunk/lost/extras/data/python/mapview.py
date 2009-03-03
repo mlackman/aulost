@@ -16,9 +16,15 @@ def translatePoint(point, pos):
     centerX,centerY = pos
     return centerX+x, centerY - y
 
-class MapLayer(object):
+class Layer(object):
+    
+    def __init__(self):   
+        self.canvas = None
+
+class MapLayer(Layer):
         
     def __init__(self, engine):
+        Layer.__init__(self)
         self._engine = engine
 
     def update(self):
@@ -28,13 +34,13 @@ class MapLayer(object):
     def _drawMapPiece(self, mapPiece):
         image = mapPiece.image
         if image:        
-            appuifw.app.body.blit(image, (-mapPiece.x,-mapPiece.y))
+            self.canvas.blit(image, (-mapPiece.x,-mapPiece.y))
         else:   
             # Clear the area of map piece, which does not have image
             width,height = mapPiece.size
             area = (mapPiece.x, mapPiece.y, mapPiece.x+width, mapPiece.y+height)
             white = (255,255,255)
-            appuifw.app.body.rectangle(area, white,fill=white)
+            self.canvas.rectangle(area, white,fill=white)
 
 class HeadingArrow(object):
     
@@ -44,20 +50,20 @@ class HeadingArrow(object):
         self.angle = 0
         
 
-    def draw(self):
+    def draw(self, canvas):
         rad = math.radians(self.angle)
         newPoints = map(lambda point: rotatePoint(point,rad), self._points)
         newPoints = map(lambda point: translatePoint(point, self.pos), newPoints)
-        canvas = appuifw.app.body
-        canvas.polygon(newPoints, (0,0,0),fill=(255,0,0),width=2)         
+        canvas.polygon(newPoints, (0,0,0),fill=(255,0,0),width=2)      
 
-class CursorLayer(object):
+class CursorLayer(Layer):
     
     def __init__(self, gps):
+        Layer.__init__(self)
         self._gps = gps
 
     def update(self):
-        canvas = appuifw.app.body
+        canvas = self.canvas
         width,height = canvas.size
         centerX = width / 2
         centerY = height / 2
@@ -74,11 +80,12 @@ class CursorLayer(object):
             arrow = HeadingArrow()
             arrow.angle = angle
             arrow.pos = centerX+newX,centerY-newY
-            arrow.draw()
+            arrow.draw(canvas)
 
-class InfoLayer(object):
+class InfoLayer(Layer):
     
     def __init__(self, gps):
+        Layer.__init__(self)
         self._gps = gps
 
     def update(self):
@@ -86,7 +93,7 @@ class InfoLayer(object):
             self._drawGPS() 
 
     def _drawGPS(self):
-        canvas = appuifw.app.body
+        canvas = self.canvas
         font = (None, None, graphics.FONT_BOLD)
         boundingBox, movement, nmbrOfChars = canvas.measure_text(u'GPS', font)
         x,y,x1,y1 = boundingBox
@@ -97,9 +104,10 @@ class InfoLayer(object):
             x,y = pos
             canvas.rectangle((x-2,2,width-2,y+2),(0,0,0),width=2)
 
-class TrackLayer(object):
+class TrackLayer(Layer):
     
     def __init__(self, engine):
+        Layer.__init__(self)
         self._engine = engine
     
     def update(self):
@@ -111,7 +119,7 @@ class TrackLayer(object):
         mapPiece = self._engine.map
         coordinates = map(lambda location: mapPiece.toScreenCoordinates(location), track)
         if len(coordinates) > 1:
-            appuifw.app.body.line(coordinates,(255,0,0),width=2)
+            self.canvas.line(coordinates,(255,0,0),width=2)
 
 class MapView(object):
     
@@ -121,10 +129,15 @@ class MapView(object):
         self._layers = [MapLayer(self._engine), CursorLayer(self._engine.gps),\
                         InfoLayer(self._engine.gps), TrackLayer(self._engine)]
         self._exitCallback = exitCallback
+        self._offscreen = None
         
 
     def activate(self):
         appuifw.app.body = appuifw.Canvas(self._redraw,self._keypressed, self._resize)
+        if not self._offscreen:
+            self._offscreen = graphics.Image.new(appuifw.app.body.size)
+        for layer in self._layers:
+            layer.canvas = self._offscreen
         appuifw.app.menu = [(u'Size',\
                             ((u'Normal', self._normalSize),
                              (u'Large',  self._largeSize),
@@ -155,12 +168,17 @@ class MapView(object):
             self._engine.moveMap(10, 0)
 
     def _resize(self, event):
-        self._engine.update()
+        if type(appuifw.app.body) is appuifw.Canvas:
+            self._offscreen = graphics.Image.new(appuifw.app.body.size)
+            for layer in self._layers:
+                layer.canvas = self._offscreen
+            self._engine.update()
 
     def _redraw(self, area):
         if not hasattr(appuifw.app.body,'blit'):
             return
         map(lambda layer: layer.update(), self._layers)
+        appuifw.app.body.blit(self._offscreen)
         
     def _normalSize(self):
         appuifw.app.screen='normal'
