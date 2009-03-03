@@ -172,7 +172,6 @@ class MapEngine(object):
             self.map.move(dx,dy) 
             self.currentPosition = self.map.center
             self._updateMap()
-        self._mapInformationChagedCallback()
 
     def zoomIn(self):
         if self._provider:
@@ -215,14 +214,7 @@ class MapEngine(object):
     def _updateMap(self):
         if not self._provider or not hasattr(appuifw.app.body,'size'):
             return
-        newMap = self._provider.getMap(self.currentPosition, appuifw.app.body.size)
-        if self.map:
-            for oldMapPiece in self.map.mapPieces:
-                for newMapPiece in newMap.mapPieces:
-                    if oldMapPiece.url == newMapPiece.url:
-                        newMapPiece.image = oldMapPiece.image
-                        break
-        self.map = newMap
+        self.map = self._provider.getMap(self.currentPosition, appuifw.app.body.size)
         for map in self.map.mapPieces:
             if not map.image:
                 cachedImage = self._mapCache.get(map.url)
