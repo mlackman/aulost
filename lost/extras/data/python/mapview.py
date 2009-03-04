@@ -4,6 +4,7 @@ import graphics
 import time
 import locations
 import math
+import track
 
 def rotatePoint(point, rad):
     x,y = point
@@ -148,6 +149,7 @@ class MapView(object):
                         (u'Goto', self._goto),
                         (u'Store location', self._storeLocation),
                         (u'View locations', self._viewLocations),
+                        (u'Store track', self._storeTrack),
                         (u'Exit', self._exitCallback)]
         appuifw.app.screen = 'normal'
         appuifw.app.body.clear()
@@ -196,6 +198,10 @@ class MapView(object):
     def _viewLocations(self):
         self._engine.gps.stop()
         self._viewManager.changeView('LocationsView')
+
+    def _storeTrack(self):
+        dlg = track.SaveTrackDlg(track.TrackStore())
+        dlg.execute(self._engine.track)
 
     def _goto(self):
         self._engine.gotoLocation((65.794404,24.88808)) 
