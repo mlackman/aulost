@@ -23,13 +23,13 @@ class SaveTrackDlg(object):
 
 class TrackStore(object):
     
-    def save(self, filename, track):
+    def save(self, filename, trackPoints):
         filename += '_track'
         if os.path.exists(filename):
             return False
         data = ''
-        for location in track:
-            data += '%f,' % location
+        for location in trackPoints:
+            data += '%f,%f,' % location
         f = open(filename,'wt')
         f.write(data)
         f.close()
