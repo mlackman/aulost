@@ -222,6 +222,7 @@ class MapView(object):
     def _startGPS(self):
         if self._engine.gps.seekingSatellites or self._engine.gps.active:
             return
+        self._engine.track = []
         self._engine.gps.start()
         self.update()
 

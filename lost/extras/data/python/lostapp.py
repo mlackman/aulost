@@ -26,7 +26,7 @@ class LostApp:
 
         mapView = mapview.MapView(self.engine, self, self._exitApp)
         locationView = locations.LocationsView(locations.LocationStore(), self, self.engine)
-        trackView = track.TrackView(track.TrackStore(), self)
+        trackView = track.TrackView(track.TrackStore(), self, self.engine)
         self._views = {'MapView':mapView, 'LocationsView':locationView, \
                        'TrackView':trackView}
         self.engine.setCallback(mapView.update)

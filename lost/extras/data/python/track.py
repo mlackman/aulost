@@ -22,6 +22,15 @@ class SaveTrackDlg(object):
         return self._trackStore.save(str(filename), track)
 
 class TrackStore(object):
+
+    def load(self, filename):
+        f = open(filename + '_track', 'rt')
+        data = f.read()
+        f.close()
+        strPoints = data.split(';')
+        strPoints = map(lambda strPoint: strPoint.split(','), strPoints)
+        trackPoints = [(float(lat),float(lon)) for lat,lon in strPoints[:-1]]
+        return trackPoints
     
     def save(self, filename, trackPoints):
         filename += '_track'
@@ -29,7 +38,7 @@ class TrackStore(object):
             return False
         data = ''
         for location in trackPoints:
-            data += '%f,%f,' % location
+            data += '%f,%f;' % location
         f = open(filename,'wt')
         f.write(data)
         f.close()
@@ -45,10 +54,11 @@ class TrackStore(object):
 
 class TrackView(object):
     
-    def __init__(self, trackStore, viewManager):
+    def __init__(self, trackStore, viewManager, engine):
         self._trackStore = trackStore
         self._viewManager = viewManager
         self._trackNames = None
+        self._engine = engine
 
     def activate(self):
         self._trackNames = self._trackStore.trackNames()
@@ -65,7 +75,10 @@ class TrackView(object):
         return [unicode(trackName) for trackName in self._trackNames]
 
     def _view(self):
-        pass
+        trackPoints = self._trackStore.load(self._selectedTrack())
+        self._engine.track = trackPoints
+        self._engine.currentPosition = trackPoints[0]
+        self._toMapView()
 
     def _delete(self):
         self._deleteTrack(self._selectedTrack())
