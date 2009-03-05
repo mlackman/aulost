@@ -150,6 +150,7 @@ class MapView(object):
                         (u'Store location', self._storeLocation),
                         (u'View locations', self._viewLocations),
                         (u'Store track', self._storeTrack),
+                        (u'View tracks', self._viewTracks),
                         (u'Exit', self._exitCallback)]
         appuifw.app.screen = 'normal'
         appuifw.app.body.clear()
@@ -202,6 +203,10 @@ class MapView(object):
     def _storeTrack(self):
         dlg = track.SaveTrackDlg(track.TrackStore())
         dlg.execute(self._engine.track)
+
+    def _viewTracks(self):
+        self._engine.gps.stop()
+        self._viewManager.changeView('TrackView')
 
     def _goto(self):
         self._engine.gotoLocation((65.794404,24.88808)) 
