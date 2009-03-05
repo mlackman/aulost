@@ -35,6 +35,9 @@ class TrackStore(object):
         f.close()
         return True
 
+    def delete(self, filename):
+        os.remove(filename + '_track')
+
     def trackNames(self):
         files = utils.findFilesEndsWith('_track', '.')
         return map(lambda file: file[:-len('_track')], files)
@@ -65,7 +68,19 @@ class TrackView(object):
         pass
 
     def _delete(self):
-        pass
+        self._deleteTrack(self._selectedTrack())
+        if self._trackNames:
+            appuifw.app.body.set_list(self._listItems())
+        else:
+            appuifw.note(u'No more tracks', 'info')
+            self._toMapView()
+
+    def _deleteTrack(self, trackName):
+        self._trackNames.remove(trackName)
+        self._trackStore.delete(trackName)      
+
+    def _selectedTrack(self):
+        return self._trackNames[appuifw.app.body.current()]
 
     def _toMapView(self):
         self._viewManager.changeView('MapView')
