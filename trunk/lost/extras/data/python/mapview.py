@@ -201,8 +201,11 @@ class MapView(object):
         self._viewManager.changeView('LocationsView')
 
     def _storeTrack(self):
-        dlg = track.SaveTrackDlg(track.TrackStore())
-        dlg.execute(self._engine.track)
+        if self._engine.track:
+            dlg = track.SaveTrackDlg(track.TrackStore())
+            dlg.execute(self._engine.track)
+        else:
+            appuifw.note(u'No track', 'info')
 
     def _viewTracks(self):
         self._engine.gps.stop()
