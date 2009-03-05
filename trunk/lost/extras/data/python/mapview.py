@@ -203,7 +203,12 @@ class MapView(object):
     def _storeTrack(self):
         if self._engine.track:
             dlg = track.SaveTrackDlg(track.TrackStore())
-            dlg.execute(self._engine.track)
+            # Take the copy of the array because GPS is adding new location
+            # points when dialog is executing. Otherwise the saving the locations
+            # fails.
+            trackPoints = []
+            trackPoints.extend(self._engine.track)
+            dlg.execute(trackPoints)
         else:
             appuifw.note(u'No track', 'info')
 
