@@ -1,5 +1,6 @@
 import appuifw 
 import os
+import utils
 
 class SaveTrackDlg(object):
 
@@ -23,6 +24,7 @@ class SaveTrackDlg(object):
 class TrackStore(object):
     
     def save(self, filename, track):
+        filename += '_track'
         if os.path.exists(filename):
             return False
         data = ''
@@ -32,5 +34,43 @@ class TrackStore(object):
         f.write(data)
         f.close()
         return True
+
+    def trackNames(self):
+        files = utils.findFilesEndsWith('_track', '.')
+        return map(lambda file: file[:-len('_track')], files)
+        
+
+class TrackView(object):
+    
+    def __init__(self, trackStore, viewManager):
+        self._trackStore = trackStore
+        self._viewManager = viewManager
+        self._trackNames = None
+
+    def activate(self):
+        self._trackNames = self._trackStore.trackNames()
+        if self._trackNames:
+            appuifw.app.body = appuifw.Listbox(self._listItems(),self._selectionCallback)
+            appuifw.app.menu = [(u'View', self._view),
+                                (u'Delete', self._delete),
+                                (u'Back to map', self._toMapView)]
+        else:
+            appuifw.note(u'No saved tracks', 'info')
+            self._toMapView()
+
+    def _listItems(self):
+        return [unicode(trackName) for trackName in self._trackNames]
+
+    def _view(self):
+        pass
+
+    def _delete(self):
+        pass
+
+    def _toMapView(self):
+        self._viewManager.changeView('MapView')
+
+    def _selectionCallback(self):
+        pass
         
 

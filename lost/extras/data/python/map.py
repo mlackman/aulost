@@ -4,7 +4,7 @@ import appuifw
 import urllib
 import graphics
 import socket
-import os
+import utils
 import gps
 
 apo = 0 # access point
@@ -122,12 +122,11 @@ class MapProviders(object):
     def __init__(self):
         self.provider = None
         self._providers = {}
-        for root,dir,files in os.walk('c:\\data\\python'):
-            for file in files:
-                if file.endswith('_provider.py'):
-                    providerModule = __import__(file[:-3])
-                    provider = providerModule.provider()
-                    self._providers[provider.name] = provider
+        files = utils.findFilesEndsWith('_provider.py', 'c:\\data\\python')
+        for file in files:
+            providerModule = __import__(file[:-3])
+            provider = providerModule.provider()
+            self._providers[provider.name] = provider
 
     def providers(self):
         return self._providers.keys()
