@@ -139,19 +139,24 @@ class MapView(object):
             self._offscreen = graphics.Image.new(appuifw.app.body.size)
         for layer in self._layers:
             layer.canvas = self._offscreen
-        appuifw.app.menu = [(u'Size',\
-                            ((u'Normal', self._normalSize),
-                             (u'Large',  self._largeSize),
-                             (u'Full',   self._fullSize))),
-                        (u'Zoom in', self._engine.zoomIn),
-                        (u'Zoom out', self._engine.zoomOut),
-                        (u'Locate', self._startGPS),
-                        (u'Goto', self._goto),
-                        (u'Store location', self._storeLocation),
-                        (u'View locations', self._viewLocations),
-                        (u'Store track', self._storeTrack),
-                        (u'View tracks', self._viewTracks),
-                        (u'Exit', self._exitCallback)]
+        appuifw.app.menu = [(u'Size',
+                                 ((u'Normal', self._normalSize),
+                                 (u'Large',  self._largeSize),
+                                 (u'Full',   self._fullSize))),
+                            (u'Map',
+                                 ((u'Zoom in', self._engine.zoomIn),
+                                 (u'Zoom out', self._engine.zoomOut))),
+                            (u'GPS',
+                                 ((u'Start', self._startGPS),
+                                 (u'Stop', self._stopGPS))),
+                            (u'Locations',
+                                 ((u'Store location', self._storeLocation),
+                                 (u'View locations', self._viewLocations))),
+                            (u'Tracks',
+                                 ((u'Store track', self._storeTrack),
+                                 (u'View tracks', self._viewTracks))),
+                            (u'Goto', self._goto),
+                            (u'Exit', self._exitCallback)]
         appuifw.app.screen = 'normal'
         appuifw.app.body.clear()
         self.update()
@@ -224,5 +229,9 @@ class MapView(object):
             return
         self._engine.track = []
         self._engine.gps.start()
+        self.update()
+
+    def _stopGPS(self):
+        self._engine.gps.stop()
         self.update()
 
