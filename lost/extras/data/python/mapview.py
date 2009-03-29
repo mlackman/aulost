@@ -124,7 +124,8 @@ class TrackLayer(Layer):
 
 class MapView(object):
     
-    def __init__(self, mapEngine, viewManager, exitCallback):
+    def __init__(self, mapEngine, mapProviders, viewManager, exitCallback):
+        self._mapProviders = mapProviders
         self._viewManager = viewManager
         self._engine = mapEngine
         self._layers = [MapLayer(self._engine), CursorLayer(self._engine.gps),\
@@ -163,6 +164,13 @@ class MapView(object):
 
     def update(self):
         self._redraw((0,0,0,0))
+
+    def selectMapProvider(self):
+        providerNames = map(lambda name: unicode(name), self._mapProviders.providers())
+        selection = appuifw.selection_list(providerNames)
+        if selection is not None:
+            self._mapProviders.setProvider(providerNames[selection])
+            self._engine.setMapProvider(self._mapProviders.provider)
 
     def _keypressed(self, keyEvent):
         keycode = keyEvent['keycode']
