@@ -16,7 +16,7 @@ class TestMapProviderSelection(unittest.TestCase):
         def stub_selection_list(selections):
             self.givenSelections = selections
         appuifw.selection_list = stub_selection_list
-
+        
         import map as maps
         def stub_providers(self): return ['karttapaikka']
         maps.MapProviders.providers = stub_providers
@@ -28,9 +28,7 @@ class TestMapProviderSelection(unittest.TestCase):
         self.assertEquals(self.givenSelections, [u'karttapaikka'])
 
     def testUserSelectMapProvider(self):
-        import appuifw
-        appuifw.selection_list = yamf.Mock().stubmethod
-        appuifw.selection_list.returns(0)
+        yamf.MockModule('appuifw').selection_list.returns(0)
 
         import map as maps
         mock = yamf.Mock()
