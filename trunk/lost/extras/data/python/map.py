@@ -181,11 +181,13 @@ class MapEngine(object):
 
     def zoomIn(self):
         if self._provider:
+            self._loader.resetLoadQueue()
             self._provider.zoomIn()
             self._updateMap()
 
     def zoomOut(self):
         if self._provider:
+            self._loader.resetLoadQueue()
             self._provider.zoomOut()
             self._updateMap()
 
