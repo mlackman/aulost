@@ -82,11 +82,16 @@ class MapDownloader(object):
             self.worker.setJob(self.loadMapPiece)       
 
     def cancelLoading(self):
-        self.worker.stop()         
+        self.worker.stop()     
+
+    def resetLoadQueue(self):
+        """Removes all urls from load queue, expect the current loading one"""
+        if self.urls:
+            self.urls = [self.urls[0]]
             
     def loadMapPiece(self):
         """Loads map piece in different thread"""
-        url = self.urls[0]
+        url = self.urls[0] 
         filename = url[len(r'http://'):].replace('/','(').replace('.','!').replace('?','#').replace(':','_')
         image = None
         try:    
@@ -149,7 +154,9 @@ class MapEngine(object):
             e32.ao_callgate(downloadExceptionCallback))
 
     def setMapProvider(self, provider):
-        self._provider = provider
+        if self._provider is not provider:
+            self._provider = provider
+            self._loader.resetLoadQueue()
 
     def setCallback(self, callback):
         self._mapInformationChagedCallback = callback

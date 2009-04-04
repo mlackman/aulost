@@ -146,7 +146,8 @@ class MapView(object):
                                  (u'Full',   self._fullSize))),
                             (u'Map',
                                  ((u'Zoom in', self._engine.zoomIn),
-                                 (u'Zoom out', self._engine.zoomOut))),
+                                 (u'Zoom out', self._engine.zoomOut),
+                                 (u'Change provider...', self.selectMapProvider))),
                             (u'GPS',
                                  ((u'Start', self._startGPS),
                                  (u'Stop', self._stopGPS))),
@@ -171,6 +172,8 @@ class MapView(object):
         if selection is not None:
             self._mapProviders.setProvider(providerNames[selection])
             self._engine.setMapProvider(self._mapProviders.provider)
+            self._engine.update()
+            self.update()
 
     def _keypressed(self, keyEvent):
         keycode = keyEvent['keycode']
