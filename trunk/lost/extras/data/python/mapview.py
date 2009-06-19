@@ -18,11 +18,13 @@ def translatePoint(point, pos):
     return centerX+x, centerY - y
 
 class Layer(object):
+    """Layer, which are drawn top of each other"""
     
     def __init__(self):   
         self.canvas = None
 
 class MapLayer(Layer):
+    """Shows the map"""
         
     def __init__(self, engine):
         Layer.__init__(self)
@@ -44,6 +46,7 @@ class MapLayer(Layer):
             self.canvas.rectangle(area, white,fill=white)
 
 class HeadingArrow(object):
+    """Shows heading arrow in cursor"""
     
     def __init__(self):
         self._points = [(5.0,0.0),(-5.0,5.0),(-5,-5.0)]
@@ -58,6 +61,7 @@ class HeadingArrow(object):
         canvas.polygon(newPoints, (0,0,0),fill=(255,0,0),width=2)      
 
 class CursorLayer(Layer):
+    """Shows the crosshair"""
     
     def __init__(self, gps):
         Layer.__init__(self)
@@ -84,6 +88,7 @@ class CursorLayer(Layer):
             arrow.draw(canvas)
 
 class InfoLayer(Layer):
+    """Shows information"""
     
     def __init__(self, gps):
         Layer.__init__(self)
@@ -106,6 +111,7 @@ class InfoLayer(Layer):
             canvas.rectangle((x-2,2,width-2,y+2),(0,0,0),width=2)
 
 class TrackLayer(Layer):
+    """Shows track"""
     
     def __init__(self, engine):
         Layer.__init__(self)
@@ -123,6 +129,7 @@ class TrackLayer(Layer):
             self.canvas.line(coordinates,(255,0,0),width=2)
 
 class MapView(object):
+    """View to show map and related information"""
     
     def __init__(self, mapEngine, mapProviders, viewManager, exitCallback):
         self._mapProviders = mapProviders
