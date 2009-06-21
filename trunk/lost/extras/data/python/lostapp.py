@@ -6,6 +6,7 @@ import mapview
 import locations
 import track
 import gps
+import view
 
 class MainLoop(object):
     
@@ -23,14 +24,13 @@ class LostApp:
         appuifw.app.title = u'Lost'
         self._selectAccessPoint()
         self.engine = maps.MapEngine(gps.GPS(), self._downloadException)
+        vm = view.ViewManager()
+        mapView = mapview.MapView(self.engine, maps.MapProviders(), vm, self._exitApp)
+        locationView = locations.LocationsView(locations.LocationStore(), vm, self.engine)
+        trackView = track.TrackView(track.TrackStore(), vm, self.engine)
 
-        mapView = mapview.MapView(self.engine, maps.MapProviders(), self, self._exitApp)
-        locationView = locations.LocationsView(locations.LocationStore(), self, self.engine)
-        trackView = track.TrackView(track.TrackStore(), self, self.engine)
-        self._views = {'MapView':mapView, 'LocationsView':locationView, \
-                       'TrackView':trackView}
         self.engine.setCallback(mapView.update)
-        self.changeView('MapView')
+        vm.change_view('MapView')
 
         mapView.selectMapProvider()
         
@@ -40,9 +40,6 @@ class LostApp:
     def start(self):
         self.engine.start()
         self.__mainloop.start()
-
-    def changeView(self, viewName):
-        self._views[viewName].activate()
 
     def _exitApp(self):
         self.engine.close()

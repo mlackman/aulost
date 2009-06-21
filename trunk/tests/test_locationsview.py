@@ -29,7 +29,7 @@ class TestLocationViewSpecialCases(unittest.TestCase):
 
     def testViewIsChangedBackIfNotLocationsInStore(self):
         viewManagerMock = yamf.Mock()
-        viewManagerMock.changeView.mustBeCalled.withArgs('MapView')
+        viewManagerMock.change_view.mustBeCalled.withArgs('MapView')
         locationStoreStub = yamf.Mock()
         locationStoreStub.read.returns([])
 

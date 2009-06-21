@@ -5,6 +5,7 @@ import time
 import locations
 import math
 import track
+import view
 
 def rotatePoint(point, rad):
     x,y = point
@@ -128,12 +129,12 @@ class TrackLayer(Layer):
         if len(coordinates) > 1:
             self.canvas.line(coordinates,(255,0,0),width=2)
 
-class MapView(object):
+class MapView(view.View):
     """View to show map and related information"""
     
     def __init__(self, mapEngine, mapProviders, viewManager, exitCallback):
+        view.View.__init__(self, 'MapView', viewManager)
         self._mapProviders = mapProviders
-        self._viewManager = viewManager
         self._engine = mapEngine
         self._layers = [MapLayer(self._engine), CursorLayer(self._engine.gps),\
                         InfoLayer(self._engine.gps), TrackLayer(self._engine)]
@@ -221,7 +222,7 @@ class MapView(object):
 
     def _viewLocations(self):
         self._engine.gps.stop()
-        self._viewManager.changeView('LocationsView')
+        self.view_manager.change_view('LocationsView')
 
     def _storeTrack(self):
         if self._engine.track:
@@ -237,7 +238,7 @@ class MapView(object):
 
     def _viewTracks(self):
         self._engine.gps.stop()
-        self._viewManager.changeView('TrackView')
+        self.view_manager.change_view('TrackView')
 
     def _goto(self):
         self._engine.gotoLocation((65.794404,24.88808)) 
