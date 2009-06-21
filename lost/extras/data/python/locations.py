@@ -2,6 +2,7 @@ import appuifw
 import time
 import datetime
 import os
+import view
 
 class SaveLocationDlg(object):
     
@@ -35,10 +36,10 @@ class SaveLocationDlg(object):
     def _createForm(self, fields):
         return appuifw.Form(fields)
 
-class LocationsView(object):
+class LocationsView(view.View):
     
     def __init__(self, locationStore, viewManager, engine):
-        self._viewManager = viewManager
+        view.View.__init__(self, 'LocationsView', viewManager)
         self._store = locationStore
         self._locations = None
         self._engine = engine
@@ -63,7 +64,7 @@ class LocationsView(object):
         pass
 
     def _toMapView(self):
-        self._viewManager.changeView('MapView')
+        self.view_manager.change_view('MapView')
     
     def _view(self):
         info = self._selectedInfo()

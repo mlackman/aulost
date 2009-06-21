@@ -1,6 +1,7 @@
 import appuifw 
 import os
 import utils
+import view
 
 class SaveTrackDlg(object):
 
@@ -52,11 +53,11 @@ class TrackStore(object):
         return map(lambda file: file[:-len('_track')], files)
         
 
-class TrackView(object):
+class TrackView(view.View):
     
     def __init__(self, trackStore, viewManager, engine):
+        view.View.__init__(self, 'TrackView', viewManager)
         self._trackStore = trackStore
-        self._viewManager = viewManager
         self._trackNames = None
         self._engine = engine
 
@@ -96,7 +97,7 @@ class TrackView(object):
         return self._trackNames[appuifw.app.body.current()]
 
     def _toMapView(self):
-        self._viewManager.changeView('MapView')
+        self.view_manager.change_view('MapView')
 
     def _selectionCallback(self):
         pass
