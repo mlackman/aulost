@@ -2,5 +2,5 @@
 mkdir bin
 cp -r lost bin
 find bin | grep -iE "\.pyc|\.py~|svn" | xargs rm -rdf
-python2.5 ensymble.py py2sis --mode=pys60 --caps=Location+LocalServices+NetworkServices+ReadUserData+WriteUserData+UserEnvironment --heapsize=12k,4M --uid=0xe04584aa --extrasdir=extras --appname=lost --version=0.3.4 --caption=Lost bin/lost sis/lost_V0_34.sis
+python2.5 ensymble.py py2sis --mode=pys60 --caps=Location+LocalServices+NetworkServices+ReadUserData+WriteUserData+UserEnvironment --heapsize=12k,4M --uid=0xe04584aa --extrasdir=extras --appname=lost --version=0.3.5 --caption=Lost bin/lost sis/lost_V0_35.sis
 rm -rdf bin
