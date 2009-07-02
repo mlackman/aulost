@@ -7,6 +7,8 @@ import math
 import track
 import view
 
+KeyboardAmountOfMapMovement = 10
+
 def rotatePoint(point, rad):
     x,y = point
     newX = x * math.cos(rad) - y * math.sin(rad)
@@ -17,6 +19,47 @@ def translatePoint(point, pos):
     x,y = point
     centerX,centerY = pos
     return centerX+x, centerY - y
+    
+class MapMover(object):
+    """Moves map from different inputs"""
+    
+    def __init__(self, mapEngine):
+        self._mapEngine = mapEngine
+        self._lastPointerPos = None
+        
+    def canvasEventCallback(self, event):
+        """Calback from appuifw.Canvas event. Moves the map according to the event"""
+        if event.has_key('keycode'):
+            self._keyboardEvent(event)
+        else:
+            self._pointerEvent(event)
+            
+    def _keyboardEvent(self, event):
+        keyCode = event['keycode']
+        if keyCode == key_codes.EKeyUpArrow:
+            self._mapEngine.moveMap(0,-KeyboardAmountOfMapMovement)
+        elif keyCode == key_codes.EKeyDownArrow:
+            self._mapEngine.moveMap(0,KeyboardAmountOfMapMovement)
+        elif keyCode == key_codes.EKeyLeftArrow:
+            self._mapEngine.moveMap(-KeyboardAmountOfMapMovement,0)
+        elif keyCode == key_codes.EKeyRightArrow:
+            self._mapEngine.moveMap(KeyboardAmountOfMapMovement,0)
+            
+    def _pointerEvent(self, event):
+        pointerEvent = event['type']
+        if pointerEvent == key_codes.EButton1Down:
+            self._lastPointerPos = event['pos']
+        elif pointerEvent == key_codes.EDrag:
+            lastPointerX,lastPointerY = self._lastPointerPos
+            x,y = event['pos']
+            self._mapEngine.moveMap(lastPointerX - x, lastPointerY - y)
+            self._lastPointerPos = (x,y)
+        elif pointerEvent == key_codes.EButton1Up:
+            self._lastPoitnerPos = None
+                
+        
+        
+    
 
 class Layer(object):
     """Layer, which are drawn top of each other"""
@@ -140,10 +183,12 @@ class MapView(view.View):
                         InfoLayer(self._engine.gps), TrackLayer(self._engine)]
         self._exitCallback = exitCallback
         self._offscreen = None
+        self._mapMover = MapMover(mapEngine)
+        self.lastPoint = None
         
 
     def activate(self):
-        appuifw.app.body = appuifw.Canvas(self._redraw,self._keypressed, self._resize)
+        appuifw.app.body = appuifw.Canvas(self._redraw,self._mapMover.canvasEventCallback, self._resize)
         if not self._offscreen:
             self._offscreen = graphics.Image.new(appuifw.app.body.size)
         for layer in self._layers:
@@ -182,17 +227,6 @@ class MapView(view.View):
             self._engine.setMapProvider(self._mapProviders.provider)
             self._engine.update()
             self.update()
-
-    def _keypressed(self, keyEvent):
-        keycode = keyEvent['keycode']
-        if keycode == key_codes.EKeyUpArrow:
-            self._engine.moveMap(0, -10)
-        elif keycode == key_codes.EKeyDownArrow:
-            self._engine.moveMap(0, 10)
-        elif keycode == key_codes.EKeyLeftArrow:
-            self._engine.moveMap(-10, 0)
-        elif keycode == key_codes.EKeyRightArrow:
-            self._engine.moveMap(10, 0)
 
     def _resize(self, event):
         if type(appuifw.app.body) is appuifw.Canvas:
