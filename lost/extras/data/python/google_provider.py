@@ -36,7 +36,7 @@ def provider():
 class MapPiece(object):
     
     def __init__(self, col, row, zoom):
-        self.url = 'http://mt.google.com/mt?x=%d&y=%d&zoom=%d' % (col, row, 17-zoom)
+        self.url = 'http://mt.google.com/vt/v=w2.97&hl=en&x=%d&y=%d&z=%d' % (col, row, zoom)
         self.image = None
         self.size = (256,256)
 
@@ -127,5 +127,7 @@ class Google(object):
 if __name__ == '__main__':
     g = Google()
     m = g.getMap((65.681264, 24.755917), (200,200))
+    for map in m.mapPieces:
+        print map.url
     print m.toScreenCoordinates((65.681422,24.76917))
 
