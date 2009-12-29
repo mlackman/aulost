@@ -22,6 +22,7 @@ class MainLoop(object):
 class LostApp:
     def __init__(self):
         appuifw.app.title = u'Lost'
+        appuifw.app.directional_pad = False
         self._selectAccessPoint()
         self.engine = maps.MapEngine(gps.GPS(), self._downloadException)
         vm = view.ViewManager()
