@@ -144,12 +144,12 @@ class InfoLayer(Layer):
 
     def _drawGPS(self):
         canvas = self.canvas
-        font = (None, None, graphics.FONT_BOLD)
-        boundingBox, movement, nmbrOfChars = canvas.measure_text(u'GPS', font)
+        boundingBox, movement, nmbrOfChars =\
+            canvas.measure_text(u'GPS',font='normal')
         x,y,x1,y1 = boundingBox
         width,height = canvas.size
         pos = (width-x1-5, -y+5)
-        canvas.text(pos, u'GPS', font=font)
+        canvas.text(pos, u'GPS', font='normal')
         if self._gps.active:
             x,y = pos
             canvas.rectangle((x-2,2,width-2,y+2),(0,0,0),width=2)
