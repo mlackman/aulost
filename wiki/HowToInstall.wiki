@@ -6,4 +6,4 @@ Before installing the lost.sis you need to install Python to your phone. The Pyt
 
 Note that if your phone is 3rd edition phone then you must sign the sis package with [https://www.symbiansigned.com/app/page/public/openSignedOnline.do Open signed]. Select all capabilities.
 
-Install to c-drivce, other drives wont work
+Install to c-drive, other drives wont work
